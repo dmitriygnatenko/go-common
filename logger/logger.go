@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"os"
 	"sync"
+
+	"git.dmitriygnatenko.ru/dima/go-common/smtp"
 )
 
 type CtxAttrKey struct{}
@@ -39,7 +41,7 @@ func Init(c Config) error {
 		}
 
 		if c.fileLogEnabled {
-			logger.logFile, err = os.OpenFile(c.fileLogFilepath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+			logger.logFile, err = os.OpenFile(c.filepath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 			if err != nil {
 				return
 			}
@@ -51,8 +53,25 @@ func Init(c Config) error {
 		}
 
 		if c.emailLogEnabled {
+			smtpClient, smtpErr := smtp.NewSMTP(
+				smtp.NewConfig(
+					smtp.WithHost(c.smtpHost),
+					smtp.WithUsername(c.smtpUsername),
+					smtp.WithPassword(c.smtpPassword),
+					smtp.WithPort(c.smtpPort),
+				),
+			)
 
-			ew := EmailWriter{}
+			if smtpErr != nil {
+				err = smtpErr
+				return
+			}
+
+			ew, ewErr := NewEmailWriter(smtpClient, c.emailRecipient, c.emailSubject)
+			if ewErr != nil {
+				err = ewErr
+				return
+			}
 
 			logger.emailLogger = slog.New(slog.NewJSONHandler(ew, &slog.HandlerOptions{
 				AddSource: c.emailLogAddSource,

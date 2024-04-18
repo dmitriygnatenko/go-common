@@ -2,7 +2,7 @@ package logger
 
 import "log/slog"
 
-type LoggerConfig struct {
+type Config struct {
 	// stdout config
 	stdoutLogEnabled   bool
 	stdoutLogLevel     slog.Level // INFO by default
@@ -19,23 +19,23 @@ type LoggerConfig struct {
 	emailLogLevel     slog.Level // INFO by default
 	emailLogAddSource bool
 	smtpHost          string
-	smtpPort          uint
-	smtpUser          string
+	smtpPort          uint16
+	smtpUsername      string
 	smtpPassword      string
-	email             string
-	subject           string
+	emailRecipient    string
+	emailSubject      string
 }
 
-type LoggerConfigOption func(*LoggerConfig)
+type ConfigOption func(*Config)
 
-type LoggerConfigOptions []LoggerConfigOption
+type ConfigOptions []ConfigOption
 
-func (s *LoggerConfigOptions) Add(option LoggerConfigOption) {
+func (s *ConfigOptions) Add(option ConfigOption) {
 	*s = append(*s, option)
 }
 
-func NewConfig(opts ...LoggerConfigOption) LoggerConfig {
-	c := &LoggerConfig{}
+func NewConfig(opts ...ConfigOption) Config {
+	c := &Config{}
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -43,103 +43,103 @@ func NewConfig(opts ...LoggerConfigOption) LoggerConfig {
 	return *c
 }
 
-// stdout log
+// stdout
 
-func WithStdoutLogEnabled(enabled bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithStdoutLogEnabled(enabled bool) ConfigOption {
+	return func(s *Config) {
 		s.stdoutLogEnabled = enabled
 	}
 }
 
-func WithStdoutLogLevel(level slog.Level) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithStdoutLogLevel(level slog.Level) ConfigOption {
+	return func(s *Config) {
 		s.stdoutLogLevel = level
 	}
 }
-func WithStdoutLogAddSource(add bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithStdoutLogAddSource(add bool) ConfigOption {
+	return func(s *Config) {
 		s.stdoutLogAddSource = add
 	}
 }
 
-// file log
+// file
 
-func WithFileLogEnabled(enabled bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithFileLogEnabled(enabled bool) ConfigOption {
+	return func(s *Config) {
 		s.fileLogEnabled = enabled
 	}
 }
 
-func WithFileLogLevel(level slog.Level) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithFileLogLevel(level slog.Level) ConfigOption {
+	return func(s *Config) {
 		s.fileLogLevel = level
 	}
 }
 
-func WithFileLogAddSource(add bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithFileLogAddSource(add bool) ConfigOption {
+	return func(s *Config) {
 		s.fileLogAddSource = add
 	}
 }
 
-func WithFilepath(path string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithFilepath(path string) ConfigOption {
+	return func(s *Config) {
 		s.filepath = path
 	}
 }
 
-// email log
+// email
 
-func WithEmailLogEnabled(enabled bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithEmailLogEnabled(enabled bool) ConfigOption {
+	return func(s *Config) {
 		s.emailLogEnabled = enabled
 	}
 }
 
-func WithEmailLogLevel(level slog.Level) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithEmailLogLevel(level slog.Level) ConfigOption {
+	return func(s *Config) {
 		s.emailLogLevel = level
 	}
 }
 
-func WithEmailLogAddSource(add bool) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithEmailLogAddSource(add bool) ConfigOption {
+	return func(s *Config) {
 		s.emailLogAddSource = add
 	}
 }
 
-func WithEmailRecipient(email string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
-		s.email = email
+func WithEmailRecipient(email string) ConfigOption {
+	return func(s *Config) {
+		s.emailRecipient = email
 	}
 }
 
-func WithEmailSubject(subject string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
-		s.subject = subject
+func WithEmailSubject(subject string) ConfigOption {
+	return func(s *Config) {
+		s.emailSubject = subject
 	}
 }
 
-func WithSMTPHost(host string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithSMTPHost(host string) ConfigOption {
+	return func(s *Config) {
 		s.smtpHost = host
 	}
 }
 
-func WithSMTPPort(port uint) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithSMTPPort(port uint16) ConfigOption {
+	return func(s *Config) {
 		s.smtpPort = port
 	}
 }
 
-func WithSMTPUser(user string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
-		s.smtpUser = user
+func WithSMTPUsername(user string) ConfigOption {
+	return func(s *Config) {
+		s.smtpUsername = user
 	}
 }
 
-func WithSMTPPassword(password string) LoggerConfigOption {
-	return func(s *LoggerConfig) {
+func WithSMTPPassword(password string) ConfigOption {
+	return func(s *Config) {
 		s.smtpPassword = password
 	}
 }
