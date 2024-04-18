@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -14,6 +15,18 @@ type DB struct {
 }
 
 func NewDB(c Config) (*DB, error) {
+	if len(c.username) == 0 {
+		return nil, errors.New("empty username")
+	}
+
+	if len(c.password) == 0 {
+		return nil, errors.New("empty password")
+	}
+
+	if len(c.dbname) == 0 {
+		return nil, errors.New("empty database name")
+	}
+
 	if len(c.driver) == 0 {
 		c.driver = defaultDriver
 	}
