@@ -12,12 +12,18 @@ type Config struct {
 	fileLogEnabled   bool
 	fileLogLevel     slog.Level // INFO by default
 	fileLogAddSource bool
-	fileLogFilepath  string
+	filepath         string
 
 	// email config
 	emailLogEnabled   bool
 	emailLogLevel     slog.Level // INFO by default
 	emailLogAddSource bool
+	smtpHost          string
+	smtpPort          uint16
+	smtpUsername      string
+	smtpPassword      string
+	emailRecipient    string
+	emailSubject      string
 }
 
 type ConfigOption func(*Config)
@@ -37,7 +43,7 @@ func NewConfig(opts ...ConfigOption) Config {
 	return *c
 }
 
-// stdout log
+// stdout
 
 func WithStdoutLogEnabled(enabled bool) ConfigOption {
 	return func(s *Config) {
@@ -56,7 +62,7 @@ func WithStdoutLogAddSource(add bool) ConfigOption {
 	}
 }
 
-// file log
+// file
 
 func WithFileLogEnabled(enabled bool) ConfigOption {
 	return func(s *Config) {
@@ -76,13 +82,13 @@ func WithFileLogAddSource(add bool) ConfigOption {
 	}
 }
 
-func WithFileLogFilepath(path string) ConfigOption {
+func WithFilepath(path string) ConfigOption {
 	return func(s *Config) {
-		s.fileLogFilepath = path
+		s.filepath = path
 	}
 }
 
-// email log
+// email
 
 func WithEmailLogEnabled(enabled bool) ConfigOption {
 	return func(s *Config) {
@@ -99,5 +105,41 @@ func WithEmailLogLevel(level slog.Level) ConfigOption {
 func WithEmailLogAddSource(add bool) ConfigOption {
 	return func(s *Config) {
 		s.emailLogAddSource = add
+	}
+}
+
+func WithEmailRecipient(email string) ConfigOption {
+	return func(s *Config) {
+		s.emailRecipient = email
+	}
+}
+
+func WithEmailSubject(subject string) ConfigOption {
+	return func(s *Config) {
+		s.emailSubject = subject
+	}
+}
+
+func WithSMTPHost(host string) ConfigOption {
+	return func(s *Config) {
+		s.smtpHost = host
+	}
+}
+
+func WithSMTPPort(port uint16) ConfigOption {
+	return func(s *Config) {
+		s.smtpPort = port
+	}
+}
+
+func WithSMTPUsername(user string) ConfigOption {
+	return func(s *Config) {
+		s.smtpUsername = user
+	}
+}
+
+func WithSMTPPassword(password string) ConfigOption {
+	return func(s *Config) {
+		s.smtpPassword = password
 	}
 }
