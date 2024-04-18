@@ -1,30 +1,23 @@
 package logger
 
-import (
-	"log/slog"
-	"time"
-)
-
-const (
-	defaultTimeFormat = time.DateTime
-)
+import "log/slog"
 
 type Config struct {
 	// stdout config
-	stdoutLogEnabled bool
-	stdoutLogLevel   slog.Level // INFO by default
+	stdoutLogEnabled   bool
+	stdoutLogLevel     slog.Level // INFO by default
+	stdoutLogAddSource bool
 
 	// file config
-	fileLogEnabled bool
-	fileLogLevel   slog.Level // INFO by default
+	fileLogEnabled   bool
+	fileLogLevel     slog.Level // INFO by default
+	fileLogAddSource bool
+	fileLogFilepath  string
 
 	// email config
-	emailLogEnabled bool
-	emailLogLevel   slog.Level // INFO by default
-
-	// common config
-	addSource  bool
-	timeFormat string
+	emailLogEnabled   bool
+	emailLogLevel     slog.Level // INFO by default
+	emailLogAddSource bool
 }
 
 type ConfigOption func(*Config)
@@ -44,27 +37,30 @@ func NewConfig(opts ...ConfigOption) Config {
 	return *c
 }
 
+// stdout log
+
 func WithStdoutLogEnabled(enabled bool) ConfigOption {
 	return func(s *Config) {
 		s.stdoutLogEnabled = enabled
 	}
 }
 
-func WithFileLogEnabled(enabled bool) ConfigOption {
-	return func(s *Config) {
-		s.fileLogEnabled = enabled
-	}
-}
-
-func WithEmailLogEnabled(enabled bool) ConfigOption {
-	return func(s *Config) {
-		s.emailLogEnabled = enabled
-	}
-}
-
 func WithStdoutLogLevel(level slog.Level) ConfigOption {
 	return func(s *Config) {
 		s.stdoutLogLevel = level
+	}
+}
+func WithStdoutLogAddSource(add bool) ConfigOption {
+	return func(s *Config) {
+		s.stdoutLogAddSource = add
+	}
+}
+
+// file log
+
+func WithFileLogEnabled(enabled bool) ConfigOption {
+	return func(s *Config) {
+		s.fileLogEnabled = enabled
 	}
 }
 
@@ -74,20 +70,34 @@ func WithFileLogLevel(level slog.Level) ConfigOption {
 	}
 }
 
+func WithFileLogAddSource(add bool) ConfigOption {
+	return func(s *Config) {
+		s.fileLogAddSource = add
+	}
+}
+
+func WithFileLogFilepath(path string) ConfigOption {
+	return func(s *Config) {
+		s.fileLogFilepath = path
+	}
+}
+
+// email log
+
+func WithEmailLogEnabled(enabled bool) ConfigOption {
+	return func(s *Config) {
+		s.emailLogEnabled = enabled
+	}
+}
+
 func WithEmailLogLevel(level slog.Level) ConfigOption {
 	return func(s *Config) {
 		s.emailLogLevel = level
 	}
 }
 
-func WithAddSource(add bool) ConfigOption {
+func WithEmailLogAddSource(add bool) ConfigOption {
 	return func(s *Config) {
-		s.addSource = add
-	}
-}
-
-func WithTimeFormat(format string) ConfigOption {
-	return func(s *Config) {
-		s.timeFormat = format
+		s.emailLogAddSource = add
 	}
 }
