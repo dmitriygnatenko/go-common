@@ -2,12 +2,11 @@ package logger
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"sync"
-
-	"git.dmitriygnatenko.ru/dima/go-common/smtp"
 )
 
 type CtxAttrKey struct{}
@@ -53,21 +52,12 @@ func Init(c Config) error {
 		}
 
 		if c.emailLogEnabled {
-			smtpClient, smtpErr := smtp.NewSMTP(
-				smtp.NewConfig(
-					smtp.WithHost(c.smtpHost),
-					smtp.WithUsername(c.smtpUsername),
-					smtp.WithPassword(c.smtpPassword),
-					smtp.WithPort(c.smtpPort),
-				),
-			)
-
-			if smtpErr != nil {
-				err = smtpErr
+			if c.smtpClient == nil {
+				err = errors.New("empty SMTP client")
 				return
 			}
 
-			ew, ewErr := NewEmailWriter(smtpClient, c.emailRecipient, c.emailSubject)
+			ew, ewErr := NewEmailWriter(c.smtpClient, c.emailRecipient, c.emailSubject)
 			if ewErr != nil {
 				err = ewErr
 				return

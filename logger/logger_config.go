@@ -2,6 +2,10 @@ package logger
 
 import "log/slog"
 
+type SMTPClient interface {
+	Send(recipient string, subject string, content string, html bool) error
+}
+
 type Config struct {
 	// stdout config
 	stdoutLogEnabled   bool
@@ -18,10 +22,7 @@ type Config struct {
 	emailLogEnabled   bool
 	emailLogLevel     slog.Level // INFO by default
 	emailLogAddSource bool
-	smtpHost          string
-	smtpPort          uint16
-	smtpUsername      string
-	smtpPassword      string
+	smtpClient        SMTPClient
 	emailRecipient    string
 	emailSubject      string
 }
@@ -120,26 +121,8 @@ func WithEmailSubject(subject string) ConfigOption {
 	}
 }
 
-func WithSMTPHost(host string) ConfigOption {
+func WithSMTPClient(c SMTPClient) ConfigOption {
 	return func(s *Config) {
-		s.smtpHost = host
-	}
-}
-
-func WithSMTPPort(port uint16) ConfigOption {
-	return func(s *Config) {
-		s.smtpPort = port
-	}
-}
-
-func WithSMTPUsername(user string) ConfigOption {
-	return func(s *Config) {
-		s.smtpUsername = user
-	}
-}
-
-func WithSMTPPassword(password string) ConfigOption {
-	return func(s *Config) {
-		s.smtpPassword = password
+		s.smtpClient = c
 	}
 }
