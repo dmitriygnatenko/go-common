@@ -98,3 +98,15 @@ func WithMaxIdleConns(maxIdleConns uint16) ConfigOption {
 		s.maxIdleConns = maxIdleConns
 	}
 }
+
+func WithMaxConnLifetime(lifetime time.Duration) ConfigOption {
+	return func(s *Config) {
+		s.maxConnLifetime = &lifetime
+	}
+}
+
+func WithMaxIdleConnLifetime(lifetime time.Duration) ConfigOption {
+	return func(s *Config) {
+		s.maxIdleConnLifetime = &lifetime
+	}
+}
