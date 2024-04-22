@@ -1,11 +1,11 @@
-package simple_cache
+package memory_cache
 
 import (
 	"sync"
 )
 
 type Cache struct {
-	sync.RWMutex
+	mu    sync.RWMutex
 	items map[string]interface{}
 }
 
@@ -16,15 +16,15 @@ func NewCache() *Cache {
 }
 
 func (c *Cache) Set(key string, value interface{}) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	c.items[key] = value
 }
 
 func (c *Cache) Get(key string) (interface{}, bool) {
-	c.RLock()
-	defer c.RUnlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	item, found := c.items[key]
 
@@ -32,8 +32,8 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 }
 
 func (c *Cache) Delete(key string) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if _, found := c.items[key]; found {
 		delete(c.items, key)
