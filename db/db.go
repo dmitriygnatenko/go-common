@@ -63,8 +63,8 @@ func NewDB(c Config) (*DB, error) {
 		db.SetMaxIdleConns(int(c.maxIdleConns))
 	}
 
-	if c.maxConnLifetime != nil {
-		db.SetConnMaxLifetime(*c.maxConnLifetime)
+	if c.maxOpenConnLifetime != nil {
+		db.SetConnMaxLifetime(*c.maxOpenConnLifetime)
 	}
 
 	if c.maxIdleConnLifetime != nil {

@@ -24,7 +24,7 @@ type Config struct {
 	maxOpenConns uint16
 	maxIdleConns uint16
 
-	maxConnLifetime     *time.Duration
+	maxOpenConnLifetime *time.Duration
 	maxIdleConnLifetime *time.Duration
 }
 
@@ -99,9 +99,9 @@ func WithMaxIdleConns(maxIdleConns uint16) ConfigOption {
 	}
 }
 
-func WithMaxConnLifetime(lifetime time.Duration) ConfigOption {
+func WithMaxOpenConnLifetime(lifetime time.Duration) ConfigOption {
 	return func(s *Config) {
-		s.maxConnLifetime = &lifetime
+		s.maxOpenConnLifetime = &lifetime
 	}
 }
 
