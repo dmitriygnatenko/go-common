@@ -8,7 +8,7 @@ const (
 	defaultDriver  = "mysql"
 	defaultHost    = "localhost"
 	defaultPort    = 3306
-	defaultSslMode = "disabled"
+	defaultSslMode = "disable"
 )
 
 type Config struct {
