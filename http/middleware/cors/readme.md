@@ -1,20 +1,16 @@
 ## Usage example
 
 ```
-corsMiddleware, err := cors.NewCORSMiddleware(
-    cors.NewConfig(
-        cors.WithOrigin("test.com"),
-        cors.WithMethods("GET,POST"),        
-    ),
-)
+mux := http.NewServeMux()
 
-if err != nil {
-    // TODO
-}
+config := cors.NewConfig(
+    cors.WithOrigin("test.com"),
+    cors.WithMethods("GET,POST"),        
+)
 
 srv = &http.Server{
     Addr:    ":8080",
-    Handler: corsMiddleware.Handle(mux),
+    Handler: cors.Handle(config, mux),
 }
 
 ```
