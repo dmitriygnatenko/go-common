@@ -26,13 +26,13 @@ func NewTransactionManager(db TxDB) *TxManager {
 	}
 }
 
-func (tm *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Handler) error {
+func (tm *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Handler) (err error) {
 	tx, ok := ctx.Value(TxKey{}).(*sql.Tx)
 	if ok {
 		return fn(ctx)
 	}
 
-	tx, err := tm.db.BeginTx(ctx, &opts)
+	tx, err = tm.db.BeginTx(ctx, &opts)
 	if err != nil {
 		return fmt.Errorf("begin transaction  error: %w", err)
 	}
@@ -81,8 +81,7 @@ func (tm *TxManager) Serializable(ctx context.Context, numAttempts int, f Handle
 	txOpts := sql.TxOptions{Isolation: sql.LevelSerializable}
 
 	for i := 0; i < numAttempts; i++ {
-		err := tm.transaction(ctx, txOpts, f)
-		if err != nil {
+		if err := tm.transaction(ctx, txOpts, f); err != nil {
 			continue
 		}
 
