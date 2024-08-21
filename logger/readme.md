@@ -4,9 +4,9 @@
 ```
 err := logger.Init(logger.NewConfig(
     logger.WithStdoutLogEnabled(true),
-    logger.WithStdoutLogLevel(slog.LevelWarn),
+    logger.WithStdoutLogLevel("WARN"),
     logger.WithFileLogEnabled(true),
-    logger.WithFileLogLevel(slog.LevelError),
+    logger.WithFileLogLevel("ERROR"),
     logger.WithFileLogAddSource(true),
     logger.WithFilepath("./errors.log"),
 ))

@@ -52,9 +52,12 @@ func WithStdoutLogEnabled(enabled bool) ConfigOption {
 	}
 }
 
-func WithStdoutLogLevel(level slog.Level) ConfigOption {
+func WithStdoutLogLevel(level string) ConfigOption {
 	return func(s *Config) {
-		s.stdoutLogLevel = level
+		var l slog.Level
+		if err := l.UnmarshalText([]byte(level)); err == nil {
+			s.stdoutLogLevel = l
+		}
 	}
 }
 func WithStdoutLogAddSource(add bool) ConfigOption {
@@ -71,9 +74,12 @@ func WithFileLogEnabled(enabled bool) ConfigOption {
 	}
 }
 
-func WithFileLogLevel(level slog.Level) ConfigOption {
+func WithFileLogLevel(level string) ConfigOption {
 	return func(s *Config) {
-		s.fileLogLevel = level
+		var l slog.Level
+		if err := l.UnmarshalText([]byte(level)); err == nil {
+			s.fileLogLevel = l
+		}
 	}
 }
 
@@ -97,9 +103,12 @@ func WithEmailLogEnabled(enabled bool) ConfigOption {
 	}
 }
 
-func WithEmailLogLevel(level slog.Level) ConfigOption {
+func WithEmailLogLevel(level string) ConfigOption {
 	return func(s *Config) {
-		s.emailLogLevel = level
+		var l slog.Level
+		if err := l.UnmarshalText([]byte(level)); err == nil {
+			s.emailLogLevel = l
+		}
 	}
 }
 
