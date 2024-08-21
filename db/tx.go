@@ -12,8 +12,6 @@ type TxDB interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }
 
-type Handler func(ctx context.Context) error
-
 type TxManager struct {
 	db TxDB
 }
@@ -24,7 +22,7 @@ func NewTransactionManager(db TxDB) *TxManager {
 	}
 }
 
-func (s *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Handler) (err error) {
+func (s *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn func(ctx context.Context) error) (err error) {
 	tx, ok := ctx.Value(TxKey{}).(*sqlx.Tx)
 	if ok {
 		return fn(ctx)
@@ -65,17 +63,17 @@ func (s *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Hand
 	return err
 }
 
-func (s *TxManager) ReadCommitted(ctx context.Context, f Handler) error {
+func (s *TxManager) ReadCommitted(ctx context.Context, f func(ctx context.Context) error) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelReadCommitted}
 	return s.transaction(ctx, txOpts, f)
 }
 
-func (s *TxManager) RepeatableRead(ctx context.Context, f Handler) error {
+func (s *TxManager) RepeatableRead(ctx context.Context, f func(ctx context.Context) error) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelRepeatableRead}
 	return s.transaction(ctx, txOpts, f)
 }
 
-func (s *TxManager) Serializable(ctx context.Context, numAttempts int, f Handler) error {
+func (s *TxManager) Serializable(ctx context.Context, numAttempts int, f func(ctx context.Context) error) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelSerializable}
 
 	for i := 0; i < numAttempts; i++ {
