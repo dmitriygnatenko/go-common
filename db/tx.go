@@ -4,14 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type TxDB interface {
-	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
-}
-
-type Logger interface {
-	ErrorContext(ctx context.Context, msg string, args ...any)
+	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }
 
 type Handler func(ctx context.Context) error
@@ -26,15 +24,15 @@ func NewTransactionManager(db TxDB) *TxManager {
 	}
 }
 
-func (tm *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Handler) (err error) {
-	tx, ok := ctx.Value(TxKey{}).(*sql.Tx)
+func (s *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Handler) (err error) {
+	tx, ok := ctx.Value(TxKey{}).(*sqlx.Tx)
 	if ok {
 		return fn(ctx)
 	}
 
-	tx, err = tm.db.BeginTx(ctx, &opts)
+	tx, err = s.db.BeginTx(ctx, &opts)
 	if err != nil {
-		return fmt.Errorf("begin transaction  error: %w", err)
+		return fmt.Errorf("begin transaction: %w", err)
 	}
 
 	ctx = context.WithValue(ctx, TxKey{}, tx)
@@ -46,16 +44,16 @@ func (tm *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Han
 
 		if err != nil {
 			if errRollback := tx.Rollback(); errRollback != nil {
-				err = fmt.Errorf("transaction rollback error: %w", errRollback)
+				err = fmt.Errorf("transaction rollback: %w", errRollback)
 			}
 
 			return
 		}
 
-		if err == nil {
+		if nil == err {
 			err = tx.Commit()
 			if err != nil {
-				err = fmt.Errorf("transaction commit error: %w", err)
+				err = fmt.Errorf("transaction commit: %w", err)
 			}
 		}
 	}()
@@ -67,21 +65,22 @@ func (tm *TxManager) transaction(ctx context.Context, opts sql.TxOptions, fn Han
 	return err
 }
 
-func (tm *TxManager) ReadCommitted(ctx context.Context, f Handler) error {
+func (s *TxManager) ReadCommitted(ctx context.Context, f Handler) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelReadCommitted}
-	return tm.transaction(ctx, txOpts, f)
+	return s.transaction(ctx, txOpts, f)
 }
 
-func (tm *TxManager) RepeatableRead(ctx context.Context, f Handler) error {
+func (s *TxManager) RepeatableRead(ctx context.Context, f Handler) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelRepeatableRead}
-	return tm.transaction(ctx, txOpts, f)
+	return s.transaction(ctx, txOpts, f)
 }
 
-func (tm *TxManager) Serializable(ctx context.Context, numAttempts int, f Handler) error {
+func (s *TxManager) Serializable(ctx context.Context, numAttempts int, f Handler) error {
 	txOpts := sql.TxOptions{Isolation: sql.LevelSerializable}
 
 	for i := 0; i < numAttempts; i++ {
-		if err := tm.transaction(ctx, txOpts, f); err != nil {
+		err := s.transaction(ctx, txOpts, f)
+		if err != nil {
 			continue
 		}
 
