@@ -94,12 +94,7 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 	return s.db.BeginTxx(ctx, opts)
 }
 
-func (s *DB) SelectContext(
-	ctx context.Context,
-	dest interface{},
-	query string,
-	args ...interface{},
-) error {
+func (s *DB) SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	tx, ok := ctx.Value(TxKey{}).(*sqlx.Tx)
 	if ok {
 		return tx.SelectContext(ctx, dest, query, args...)
@@ -108,12 +103,7 @@ func (s *DB) SelectContext(
 	return s.db.SelectContext(ctx, dest, query, args...)
 }
 
-func (s *DB) GetContext(
-	ctx context.Context,
-	dest interface{},
-	query string,
-	args ...interface{},
-) error {
+func (s *DB) GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	tx, ok := ctx.Value(TxKey{}).(*sqlx.Tx)
 	if ok {
 		return tx.GetContext(ctx, dest, query, args...)
@@ -122,11 +112,7 @@ func (s *DB) GetContext(
 	return s.db.GetContext(ctx, dest, query, args...)
 }
 
-func (s *DB) ExecContext(
-	ctx context.Context,
-	query string,
-	args ...interface{},
-) (sql.Result, error) {
+func (s *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	tx, ok := ctx.Value(TxKey{}).(*sqlx.Tx)
 	if ok {
 		return tx.ExecContext(ctx, query, args...)
