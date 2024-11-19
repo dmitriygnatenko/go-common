@@ -75,7 +75,7 @@ func Init(c Config) error {
 
 func Default() *Logger {
 	if logger == nil {
-		panic("logger not initialised")
+		logger = &Logger{}
 	}
 
 	return logger
