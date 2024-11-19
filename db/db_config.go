@@ -5,10 +5,9 @@ import (
 )
 
 const (
-	defaultDriver  = "mysql"
-	defaultHost    = "localhost"
-	defaultPort    = 3306
-	defaultSslMode = "disable"
+	defaultDriver = "mysql"
+	defaultHost   = "localhost"
+	defaultPort   = 3306
 )
 
 type Config struct {
@@ -19,7 +18,6 @@ type Config struct {
 	dbname   string
 	host     string
 	port     uint16
-	sslMode  string
 
 	maxOpenConns uint16
 	maxIdleConns uint16
@@ -78,12 +76,6 @@ func WithHost(host string) ConfigOption {
 func WithPort(port uint16) ConfigOption {
 	return func(s *Config) {
 		s.port = port
-	}
-}
-
-func WithSSLMode(sslMode string) ConfigOption {
-	return func(s *Config) {
-		s.sslMode = sslMode
 	}
 }
 

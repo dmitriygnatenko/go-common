@@ -41,16 +41,22 @@ func NewDB(c Config) (*DB, error) {
 		c.port = defaultPort
 	}
 
-	if len(c.sslMode) == 0 {
-		c.sslMode = defaultSslMode
-	}
+	var source string
 
-	source := "user=" + c.username +
-		" password=" + c.password +
-		" dbname=" + c.dbname +
-		" host=" + c.host +
-		" port=" + strconv.Itoa(int(c.port)) +
-		" sslmode=" + c.sslMode
+	switch c.driver {
+	case "mysql":
+		source = c.username +
+			":" + c.password +
+			"@tcp(" + c.host + ":" + strconv.Itoa(int(c.port)) + ")/" +
+			c.dbname +
+			"?parseTime=true"
+	case "postgres":
+		source = "user=" + c.username +
+			" password=" + c.password +
+			" dbname=/" + c.dbname +
+			" host=" + c.host +
+			" port=" + strconv.Itoa(int(c.port))
+	}
 
 	sqlConn, err := sql.Open(c.driver, source)
 	if err != nil {
