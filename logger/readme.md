@@ -7,7 +7,6 @@ err := logger.Init(logger.NewConfig(
     logger.WithStdoutLogLevel("WARN"),
     logger.WithFileLogEnabled(true),
     logger.WithFileLogLevel("ERROR"),
-    logger.WithFileLogAddSource(true),
     logger.WithFilepath("./errors.log"),
 ))
 

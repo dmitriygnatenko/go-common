@@ -8,23 +8,20 @@ type SMTPClient interface {
 
 type Config struct {
 	// stdout config
-	stdoutLogEnabled   bool
-	stdoutLogLevel     slog.Level // INFO by default
-	stdoutLogAddSource bool
+	stdoutLogEnabled bool
+	stdoutLogLevel   slog.Level // INFO by default
 
 	// file config
-	fileLogEnabled   bool
-	fileLogLevel     slog.Level // INFO by default
-	fileLogAddSource bool
-	filepath         string
+	fileLogEnabled bool
+	fileLogLevel   slog.Level // INFO by default
+	filepath       string
 
 	// email config
-	emailLogEnabled   bool
-	emailLogLevel     slog.Level // INFO by default
-	emailLogAddSource bool
-	smtpClient        SMTPClient
-	emailRecipient    string
-	emailSubject      string
+	emailLogEnabled bool
+	emailLogLevel   slog.Level // INFO by default
+	smtpClient      SMTPClient
+	emailRecipient  string
+	emailSubject    string
 }
 
 type ConfigOption func(*Config)
@@ -60,11 +57,6 @@ func WithStdoutLogLevel(level string) ConfigOption {
 		}
 	}
 }
-func WithStdoutLogAddSource(add bool) ConfigOption {
-	return func(s *Config) {
-		s.stdoutLogAddSource = add
-	}
-}
 
 // file
 
@@ -80,12 +72,6 @@ func WithFileLogLevel(level string) ConfigOption {
 		if err := l.UnmarshalText([]byte(level)); err == nil {
 			s.fileLogLevel = l
 		}
-	}
-}
-
-func WithFileLogAddSource(add bool) ConfigOption {
-	return func(s *Config) {
-		s.fileLogAddSource = add
 	}
 }
 
@@ -109,12 +95,6 @@ func WithEmailLogLevel(level string) ConfigOption {
 		if err := l.UnmarshalText([]byte(level)); err == nil {
 			s.emailLogLevel = l
 		}
-	}
-}
-
-func WithEmailLogAddSource(add bool) ConfigOption {
-	return func(s *Config) {
-		s.emailLogAddSource = add
 	}
 }
 

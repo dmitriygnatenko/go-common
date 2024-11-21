@@ -34,8 +34,7 @@ func Init(c Config) error {
 
 		if c.stdoutLogEnabled {
 			logger.stdoutLogger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-				AddSource: c.stdoutLogAddSource,
-				Level:     c.stdoutLogLevel,
+				Level: c.stdoutLogLevel,
 			}))
 		}
 
@@ -46,8 +45,7 @@ func Init(c Config) error {
 			}
 
 			logger.fileLogger = slog.New(slog.NewJSONHandler(logger.logFile, &slog.HandlerOptions{
-				AddSource: c.fileLogAddSource,
-				Level:     c.fileLogLevel,
+				Level: c.fileLogLevel,
 			}))
 		}
 
@@ -64,8 +62,7 @@ func Init(c Config) error {
 			}
 
 			logger.emailLogger = slog.New(slog.NewJSONHandler(ew, &slog.HandlerOptions{
-				AddSource: c.emailLogAddSource,
-				Level:     c.emailLogLevel,
+				Level: c.emailLogLevel,
 			}))
 		}
 	})
