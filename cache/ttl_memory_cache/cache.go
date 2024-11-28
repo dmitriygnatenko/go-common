@@ -77,6 +77,13 @@ func (c *Cache) Delete(key string) {
 	}
 }
 
+func (c *Cache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.items = make(map[string]Item)
+}
+
 func (c *Cache) cleanupWorker() {
 	for {
 		<-time.After(*c.cleanupInterval)

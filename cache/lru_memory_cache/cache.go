@@ -76,6 +76,14 @@ func (c *Cache) Delete(key string) {
 	}
 }
 
+func (c *Cache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.items = make(map[string]*list.Element)
+	c.queue = list.New()
+}
+
 func (c *Cache) clean() {
 	if element := c.queue.Back(); element != nil {
 		item := c.queue.Remove(element).(*Item)

@@ -39,3 +39,10 @@ func (c *Cache) Delete(key string) {
 		delete(c.items, key)
 	}
 }
+
+func (c *Cache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.items = make(map[string]interface{})
+}
