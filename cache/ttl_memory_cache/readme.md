@@ -3,7 +3,6 @@
 ```
 cache := NewCache(
     NewConfig(
-        memoryCache.WithCleanupInterval(30*time.Minute),
         memoryCache.WithExpiration(time.Hour),
     ),
 )

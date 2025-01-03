@@ -6,11 +6,9 @@ import (
 )
 
 type Cache struct {
-	expiration      *time.Duration
-	cleanupInterval *time.Duration
-
-	mu    sync.RWMutex
-	items map[string]Item
+	expiration *time.Duration
+	mu         sync.RWMutex
+	items      map[string]Item
 }
 
 type Item struct {
@@ -20,13 +18,8 @@ type Item struct {
 
 func NewCache(c Config) *Cache {
 	cache := Cache{
-		items:           make(map[string]Item),
-		expiration:      c.expiration,
-		cleanupInterval: c.cleanupInterval,
-	}
-
-	if c.cleanupInterval != nil {
-		go cache.cleanupWorker()
+		items:      make(map[string]Item),
+		expiration: c.expiration,
 	}
 
 	return &cache
@@ -82,21 +75,4 @@ func (c *Cache) Clear() {
 	defer c.mu.Unlock()
 
 	c.items = make(map[string]Item)
-}
-
-func (c *Cache) cleanupWorker() {
-	for {
-		<-time.After(*c.cleanupInterval)
-
-		if len(c.items) == 0 {
-			return
-		}
-
-		now := time.Now()
-		for key, item := range c.items {
-			if item.ExpiredAt != nil && now.After(*item.ExpiredAt) {
-				c.Delete(key)
-			}
-		}
-	}
 }

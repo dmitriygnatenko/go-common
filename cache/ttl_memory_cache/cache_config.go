@@ -3,8 +3,7 @@ package ttl_memory_cache
 import "time"
 
 type Config struct {
-	expiration      *time.Duration
-	cleanupInterval *time.Duration
+	expiration *time.Duration
 }
 
 type ConfigOption func(*Config)
@@ -27,11 +26,5 @@ func NewConfig(opts ...ConfigOption) Config {
 func WithExpiration(expiration time.Duration) ConfigOption {
 	return func(s *Config) {
 		s.expiration = &expiration
-	}
-}
-
-func WithCleanupInterval(cleanupInterval time.Duration) ConfigOption {
-	return func(s *Config) {
-		s.cleanupInterval = &cleanupInterval
 	}
 }
