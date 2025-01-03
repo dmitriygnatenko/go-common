@@ -46,19 +46,28 @@ func (c *Cache) Set(key string, value interface{}, expiration *time.Duration) {
 
 func (c *Cache) Get(key string) (interface{}, bool) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
 
 	item, found := c.items[key]
 	if !found {
+		c.mu.RUnlock()
 		return nil, false
 	}
 
-	if item.ExpiredAt != nil && time.Now().After(*item.ExpiredAt) {
-		c.Delete(key)
-		return nil, false
+	if item.ExpiredAt == nil {
+		c.mu.RUnlock()
+		return item.Value, true
 	}
 
-	return item.Value, true
+	if time.Now().Before(*item.ExpiredAt) {
+		c.mu.RUnlock()
+		return item.Value, true
+	}
+
+	c.mu.RUnlock() // defer not used due to deadlocks
+
+	c.Delete(key)
+
+	return nil, false
 }
 
 func (c *Cache) Delete(key string) {
