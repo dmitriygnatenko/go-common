@@ -5,37 +5,38 @@ import (
 	"time"
 )
 
-type Cache struct {
-	expiration *time.Duration
+type Cache[K comparable, V any] struct {
+	expiration time.Duration
 	mu         sync.RWMutex
-	items      map[string]Item
+	items      map[K]Item[V]
 }
 
-type Item struct {
-	Value     interface{}
-	ExpiredAt *time.Time
+type Item[V any] struct {
+	Value     V
+	ExpiredAt time.Time
 }
 
-func NewCache(c Config) *Cache {
-	cache := Cache{
-		items:      make(map[string]Item),
-		expiration: c.expiration,
+func NewCache[K comparable, V any](defaultExpiration time.Duration) *Cache[K, V] {
+	cache := Cache[K, V]{
+		items:      make(map[K]Item[V]),
+		expiration: defaultExpiration,
 	}
 
 	return &cache
 }
 
-func (c *Cache) Set(key string, value interface{}, expiration *time.Duration) {
-	item := Item{
-		Value: value,
-	}
+func (c *Cache[K, V]) Set(key K, value V, expiration *time.Duration) {
+	var expiredAt time.Time
 
 	if expiration != nil {
-		expiredAt := time.Now().Add(*expiration)
-		item.ExpiredAt = &expiredAt
-	} else if c.expiration != nil {
-		expiredAt := time.Now().Add(*c.expiration)
-		item.ExpiredAt = &expiredAt
+		expiredAt = time.Now().Add(*expiration)
+	} else {
+		expiredAt = time.Now().Add(c.expiration)
+	}
+
+	item := Item[V]{
+		Value:     value,
+		ExpiredAt: expiredAt,
 	}
 
 	c.mu.Lock()
@@ -44,21 +45,16 @@ func (c *Cache) Set(key string, value interface{}, expiration *time.Duration) {
 	c.items[key] = item
 }
 
-func (c *Cache) Get(key string) (interface{}, bool) {
+func (c *Cache[K, V]) Get(key K) (V, bool) {
 	c.mu.RLock()
 
 	item, found := c.items[key]
 	if !found {
 		c.mu.RUnlock()
-		return nil, false
+		return item.Value, false
 	}
 
-	if item.ExpiredAt == nil {
-		c.mu.RUnlock()
-		return item.Value, true
-	}
-
-	if time.Now().Before(*item.ExpiredAt) {
+	if time.Now().Before(item.ExpiredAt) {
 		c.mu.RUnlock()
 		return item.Value, true
 	}
@@ -67,10 +63,10 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 
 	c.Delete(key)
 
-	return nil, false
+	return Item[V]{}.Value, false
 }
 
-func (c *Cache) Delete(key string) {
+func (c *Cache[K, V]) Delete(key K) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -79,9 +75,9 @@ func (c *Cache) Delete(key string) {
 	}
 }
 
-func (c *Cache) Clear() {
+func (c *Cache[K, V]) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.items = make(map[string]Item)
+	c.items = make(map[K]Item[V])
 }
