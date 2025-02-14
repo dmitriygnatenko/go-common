@@ -2,42 +2,37 @@ package lru_memory_cache
 
 import (
 	"container/list"
-	"errors"
 	"sync"
 )
 
-type Cache struct {
+type Cache[K comparable, V any] struct {
 	capacity int
 
 	mu    sync.RWMutex
-	items map[string]*list.Element
+	items map[K]*list.Element
 	queue *list.List
 }
 
-type Item struct {
-	Key   string
-	Value interface{}
+type Item[K comparable, V any] struct {
+	Key   K
+	Value V
 }
 
-func NewCache(c Config) (*Cache, error) {
-	if c.capacity == 0 {
-		return nil, errors.New("empty capacity")
-	}
-
-	return &Cache{
-		capacity: int(c.capacity),
-		items:    make(map[string]*list.Element),
+func NewCache[K comparable, V any](capacity int) *Cache[K, V] {
+	return &Cache[K, V]{
+		capacity: capacity,
+		items:    make(map[K]*list.Element),
 		queue:    list.New(),
-	}, nil
+	}
 }
 
-func (c *Cache) Set(key string, value interface{}) {
+func (c *Cache[K, V]) Set(key K, value V) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if element, found := c.items[key]; found {
 		c.queue.MoveToFront(element)
-		element.Value.(*Item).Value = value
+		element.Value.(*Item[K, V]).Value = value
 		return
 	}
 
@@ -45,7 +40,7 @@ func (c *Cache) Set(key string, value interface{}) {
 		c.clean()
 	}
 
-	item := &Item{
+	item := &Item[K, V]{
 		Key:   key,
 		Value: value,
 	}
@@ -54,19 +49,19 @@ func (c *Cache) Set(key string, value interface{}) {
 	c.items[item.Key] = element
 }
 
-func (c *Cache) Get(key string) (interface{}, bool) {
+func (c *Cache[K, V]) Get(key K) (V, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	if element, found := c.items[key]; found {
 		c.queue.MoveToFront(element)
-		return element.Value.(*Item).Value, true
+		return element.Value.(*Item[K, V]).Value, true
 	}
 
-	return nil, false
+	return Item[K, V]{}.Value, false
 }
 
-func (c *Cache) Delete(key string) {
+func (c *Cache[K, V]) Delete(key K) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -76,17 +71,17 @@ func (c *Cache) Delete(key string) {
 	}
 }
 
-func (c *Cache) Clear() {
+func (c *Cache[K, V]) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.items = make(map[string]*list.Element)
+	c.items = make(map[K]*list.Element)
 	c.queue = list.New()
 }
 
-func (c *Cache) clean() {
+func (c *Cache[K, V]) clean() {
 	if element := c.queue.Back(); element != nil {
-		item := c.queue.Remove(element).(*Item)
+		item := c.queue.Remove(element).(*Item[K, V])
 		delete(c.items, item.Key)
 	}
 }

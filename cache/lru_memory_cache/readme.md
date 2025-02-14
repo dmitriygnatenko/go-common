@@ -2,24 +2,18 @@
 ## Usage example
 
 ```
-cache, err := NewCache(
-    NewConfig(
-        WithCapacity(3),
-    ),
-)
+cache := NewCache[string, int64](3)
 
-if err != nil {
-    // TODO
-}
+cache.Set("test1", 100)
+cache.Set("test2", 200)
+cache.Set("test3", 300)
 
-cache.Set("1", "value 1")
-cache.Set("2", "value 2")
-cache.Set("3", "value 3")
+val1, found1 := cache.Get("test1") // 100, true
+val2, found2 := cache.Get("test2") // 200, true
+val3, found3 := cache.Get("test3") // 300, true
 
-val2, found2 := cache.Get("2") // "value 2", true
-val3, found3 := cache.Get("3") // "value 3", true
+cache.Set("test4", 400)
 
-cache.Set("4", "value 4")
-
-val1, found1 := cache.Get("1") // nil, false
+val4, found4 := cache.Get("test4") // 400, false
+val5, found5 := cache.Get("test1") // 0, false
 ```
