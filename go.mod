@@ -1,5 +1,5 @@
 module git.dmitriygnatenko.ru/dima/go-common
 
-go 1.21.4
+go 1.24.0
 
 require github.com/jmoiron/sqlx v1.4.0
