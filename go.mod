@@ -1,4 +1,4 @@
-module git.dmitriygnatenko.ru/dima/go-common
+module github.com/dmitriygnatenko/go-common
 
 go 1.24.0
 
