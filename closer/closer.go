@@ -19,13 +19,16 @@ type Closer struct {
 	logger    Logger
 }
 
-func Init(c Config) error {
+type Logger interface {
+	InfoContext(ctx context.Context, msg string, args ...any)
+	ErrorContext(ctx context.Context, msg string, args ...any)
+}
+
+func Init(c Config) {
 	closer.initOnce.Do(func() {
 		closer.timeout = c.timeout
 		closer.logger = c.logger
 	})
-
-	return nil
 }
 
 func Add(f func(ctx context.Context) error) {
@@ -56,7 +59,7 @@ func Wait(ctx context.Context) {
 			for _, f := range closer.functions {
 				if err := f(closeCtx); err != nil {
 					if closer.logger != nil {
-						closer.logger.Errorf(closeCtx, "closer: %s", err.Error())
+						closer.logger.ErrorContext(closeCtx, "closer: %s", err.Error())
 					}
 				}
 			}
@@ -67,13 +70,13 @@ func Wait(ctx context.Context) {
 		select {
 		case <-complete:
 			if closer.logger != nil {
-				closer.logger.Info(closeCtx, "closer: all processes successfully completed")
+				closer.logger.InfoContext(closeCtx, "closer: all processes successfully completed")
 			}
 
 			break
 		case <-closeCtx.Done():
 			if closer.logger != nil {
-				closer.logger.Info(closeCtx, "closer: completed by timeout")
+				closer.logger.InfoContext(closeCtx, "closer: completed by timeout")
 			}
 		}
 	})

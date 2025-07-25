@@ -1,9 +1,6 @@
 package closer
 
-import (
-	"context"
-	"time"
-)
+import "time"
 
 type Config struct {
 	timeout *time.Duration
@@ -13,11 +10,6 @@ type Config struct {
 type ConfigOption func(*Config)
 
 type ConfigOptions []ConfigOption
-
-type Logger interface {
-	Info(ctx context.Context, msg string)
-	Errorf(ctx context.Context, format string, args ...any)
-}
 
 func (s *ConfigOptions) Add(option ConfigOption) {
 	*s = append(*s, option)
